@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <link
+href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&display=swap"
+rel="stylesheet"
+/>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Oncology AI Fleet — CDI Dashboard</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --bg: #0a0f1a; --surface: #111827; --surface2: #1a2436; --border: #1e2d45;
+    --accent: #00d4aa; --accent2: #3b82f6; --accent3: #f59e0b;
+    --danger: #ef4444; --warn: #f97316; --text: #e2e8f0; --muted: #64748b; --subtle: #334155;
+  }
+  body { background: var(--bg); color: var(--text); font-family: 'DM Sans', sans-serif; min-height: 100vh; overflow-x: hidden; }
+  body::before { content: ''; position: fixed; inset: 0; background-image: linear-gradient(var(--border) 1px, transparent 1px), linear-gradient(90deg, var(--border) 1px, transparent 1px); background-size: 40px 40px; opacity: 0.3; pointer-events: none; z-index: 0; }
+  .app { position: relative; z-index: 1; display: flex; min-height: 100vh; }
+  .sidebar { width: 220px; background: var(--surface); border-right: 1px solid var(--border); display: flex; flex-direction: column; padding: 24px 0; position: fixed; top: 0; left: 0; bottom: 0; z-index: 10; }
+  .logo { padding: 0 20px 28px; border-bottom: 1px solid var(--border); }
+  .logo-mark { font-family: 'Syne', sans-serif; font-weight: 800; font-size: 13px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--accent); line-height: 1.2; }
+  .logo-sub { font-family: 'DM Mono', monospace; font-size: 10px; color: var(--muted); letter-spacing: 0.06em; margin-top: 3px; }
+  .nav { padding: 16px 12px; flex: 1; }
+  .nav-label { font-family: 'DM Mono', monospace; font-size: 9px; letter-spacing: 0.15em; color: var(--muted); text-transform: uppercase; padding: 0 8px; margin: 16px 0 6px; }
+  .nav-item { display: flex; align-items: center; gap: 10px; padding: 9px 10px; border-radius: 8px; font-size: 13px; color: var(--muted); cursor: pointer; transition: all 0.15s; margin-bottom: 2px; }
+  .nav-item:hover { background: var(--surface2); color: var(--text); }
+  .nav-item.active { background: rgba(0,212,170,0.1); color: var(--accent); }
+  .nav-icon { font-size: 15px; width: 18px; text-align: center; }
+  .sidebar-footer { padding: 16px 20px; border-top: 1px solid var(--border); font-family: 'DM Mono', monospace; font-size: 10px; color: var(--muted); }
+  .status-dot { display: inline-block; width: 6px; height: 6px; border-radius: 50%; background: var(--accent); margin-right: 6px; animation: pulse 2s infinite; }
+  @keyframes pulse { 0%,100%{opacity:1}50%{opacity:0.3} }
+  .main { margin-left: 220px; flex: 1; display: flex; flex-direction: column; }
+  .topbar { height: 60px; background: rgba(17,24,39,0.85); backdrop-filter: blur(12px); border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; padding: 0 28px; position: sticky; top: 0; z-index: 5; }
+  .page-title { font-family: 'Syne', sans-serif; font-weight: 700; font-size: 16px; }
+  .topbar-right { display: flex; align-items: center; gap: 12px; }
+  .badge { font-family: 'DM Mono', monospace; font-size: 10px; padding: 4px 10px; border-radius: 20px; letter-spacing: 0.05em; white-space: nowrap; }
+  .badge-green  { background: rgba(0,212,170,0.15);  color: var(--accent);  border: 1px solid rgba(0,212,170,0.3); }
+  .badge-blue   { background: rgba(59,130,246,0.15); color: var(--accent2); border: 1px solid rgba(59,130,246,0.3); }
+  .badge-warn   { background: rgba(249,115,22,0.15); color: var(--warn);    border: 1px solid rgba(249,115,22,0.3); }
+  .badge-red    { background: rgba(239,68,68,0.15);  color: var(--danger);  border: 1px solid rgba(239,68,68,0.3); }
+  .badge-amber  { background: rgba(245,158,11,0.15); color: var(--accent3); border: 1px solid rgba(245,158,11,0.3); }
+  .avatar { width: 32px; height: 32px; border-radius: 50%; background: linear-gradient(135deg, var(--accent), var(--accent2)); display: flex; align-items: center; justify-content: center; font-family: 'Syne', sans-serif; font-weight: 700; font-size: 12px; color: var(--bg); }
+  .content { padding: 28px; }
+  .sync-bar { display: flex; align-items: center; gap: 12px; background: rgba(0,212,170,0.06); border: 1px solid rgba(0,212,170,0.2); border-radius: 8px; padding: 10px 16px; margin-bottom: 20px; font-family: 'DM Mono', monospace; font-size: 11px; color: var(--muted); }
+  .sync-label { color: var(--accent); font-weight: 500; }
+  .sync-sep { color: var(--subtle); }
+  .refresh-btn { margin-left: auto; background: rgba(0,212,170,0.1); border: 1px solid rgba(0,212,170,0.3); color: var(--accent); padding: 5px 14px; border-radius: 6px; font-family: 'DM Mono', monospace; font-size: 10px; cursor: pointer; transition: all 0.15s; letter-spacing: 0.05em; }
+  .refresh-btn:hover { background: rgba(0,212,170,0.2); }
+  .refresh-btn:disabled { opacity: 0.4; cursor: default; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .spinning { animation: spin 1s linear infinite; display: inline-block; }
+  .kpi-grid { display: grid; grid-template-columns: repeat(4,1fr); gap: 16px; margin-bottom: 24px; }
+  .kpi-card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 20px; position: relative; overflow: hidden; animation: fadeUp 0.4s ease both; }
+  .kpi-card:nth-child(1){animation-delay:.05s}.kpi-card:nth-child(2){animation-delay:.1s}.kpi-card:nth-child(3){animation-delay:.15s}.kpi-card:nth-child(4){animation-delay:.2s}
+  .kpi-card::before { content:''; position:absolute; top:0;left:0;right:0; height:2px; }
+  .kpi-card.green::before{background:var(--accent)}.kpi-card.blue::before{background:var(--accent2)}.kpi-card.amber::before{background:var(--accent3)}.kpi-card.red::before{background:var(--danger)}
+  .kpi-label { font-family:'DM Mono',monospace; font-size:10px; letter-spacing:.1em; color:var(--muted); text-transform:uppercase; margin-bottom:10px; }
+  .kpi-value { font-family:'Syne',sans-serif; font-weight:800; font-size:32px; line-height:1; margin-bottom:8px; }
+  .kpi-card.green .kpi-value{color:var(--accent)}.kpi-card.blue .kpi-value{color:var(--accent2)}.kpi-card.amber .kpi-value{color:var(--accent3)}.kpi-card.red .kpi-value{color:var(--danger)}
+  .kpi-delta { font-family:'DM Mono',monospace; font-size:11px; color:var(--muted); }
+  .kpi-delta span{color:var(--accent)}
+  @keyframes fadeUp { from{opacity:0;transform:translateY(16px)} to{opacity:1;transform:translateY(0)} }
+  .grid-3 { display:grid; grid-template-columns:2fr 1fr; gap:16px; margin-bottom:16px; }
+  .grid-2 { display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-bottom:16px; }
+  .panel { background:var(--surface); border:1px solid var(--border); border-radius:12px; overflow:hidden; }
+  .panel-header { padding:16px 20px; border-bottom:1px solid var(--border); display:flex; align-items:center; justify-content:space-between; }
+  .panel-title { font-family:'Syne',sans-serif; font-weight:600; font-size:13px; }
+  .panel-body { padding:20px; }
+  table { width:100%; border-collapse:collapse; }
+  thead th { font-family:'DM Mono',monospace; font-size:10px; letter-spacing:.1em; color:var(--muted); text-transform:uppercase; text-align:left; padding:0 12px 10px; border-bottom:1px solid var(--border); }
+  tbody tr { border-bottom:1px solid rgba(30,45,69,.5); transition:background .15s; cursor:pointer; }
+  tbody tr:hover { background:var(--surface2); }
+  tbody tr:last-child { border-bottom:none; }
+  td { padding:12px; font-size:12.5px; vertical-align:middle; }
+  .td-mono { font-family:'DM Mono',monospace; font-size:11px; }
+  .pill { display:inline-block; padding:3px 8px; border-radius:4px; font-family:'DM Mono',monospace; font-size:10px; }
+  .pill-CCMCC{background:rgba(0,212,170,.12);color:var(--accent)}
+  .pill-DRG{background:rgba(59,130,246,.12);color:var(--accent2)}
+  .pill-HAC{background:rgba(239,68,68,.12);color:var(--danger)}
+  .pill-PSI{background:rgba(168,85,247,.12);color:#a855f7}
+  .pill-Mortality{background:rgba(245,158,11,.12);color:var(--accent3)}
+  .bar-chart { display:flex; flex-direction:column; gap:12px; }
+  .bar-row { display:flex; align-items:center; gap:10px; }
+  .bar-label { font-size:12px; color:var(--muted); width:120px; flex-shrink:0; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .bar-track { flex:1; height:6px; background:var(--surface2); border-radius:3px; overflow:hidden; }
+  .bar-fill { height:100%; border-radius:3px; transition:width 1s cubic-bezier(.4,0,.2,1); }
+  .bar-val { font-family:'DM Mono',monospace; font-size:11px; color:var(--text); width:36px; text-align:right; }
+  .alert-list { display:flex; flex-direction:column; gap:10px; }
+  .alert-item { display:flex; align-items:flex-start; gap:12px; padding:12px; background:var(--surface2); border-radius:8px; border-left:3px solid transparent; font-size:12.5px; }
+  .alert-item.crit{border-color:var(--danger)}.alert-item.warn{border-color:var(--warn)}.alert-item.info{border-color:var(--accent2)}
+  .alert-icon{font-size:14px;margin-top:1px;flex-shrink:0}
+  .alert-title{font-weight:500;margin-bottom:2px}
+  .alert-sub{color:var(--muted);font-size:11px;font-family:'DM Mono',monospace}
+  .donut-wrap{display:flex;align-items:center;gap:20px}
+  svg.donut{width:80px;height:80px;flex-shrink:0}
+  .donut-legend{display:flex;flex-direction:column;gap:8px}
+  .legend-item{display:flex;align-items:center;gap:8px;font-size:12px}
+  .legend-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+  .legend-val{font-family:'DM Mono',monospace;font-size:11px;color:var(--muted);margin-left:auto;padding-left:12px}
+  .drg-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:8px}
+  .drg-cell{background:var(--surface2);border-radius:8px;padding:12px 8px;text-align:center;border:1px solid transparent;cursor:pointer;transition:all .2s}
+  .drg-cell:hover{border-color:var(--accent);transform:translateY(-2px)}
+  .drg-code{font-family:'DM Mono',monospace;font-size:11px;color:var(--muted);margin-bottom:4px}
+  .drg-impact{font-family:'Syne',sans-serif;font-weight:700;font-size:16px}
+  .drg-cell.high .drg-impact{color:var(--accent)}.drg-cell.med .drg-impact{color:var(--accent3)}.drg-cell.low .drg-impact{color:var(--muted)}
+  .drg-label{font-size:10px;color:var(--muted);margin-top:2px}
+  .fhir-tag{font-family:'DM Mono',monospace;font-size:9px;padding:2px 6px;background:rgba(59,130,246,.1);color:var(--accent2);border-radius:3px;letter-spacing:.05em}
+  .timestamp{font-family:'DM Mono',monospace;font-size:10px;color:var(--muted)}
+  .section-gap{margin-bottom:16px}
+</style>
+</head>
+<body>
+<div class="app">
+  <aside class="sidebar">
+    <div class="logo">
+      <div class="logo-mark">Oncology AI Fleet</div>
+      <div class="logo-sub">CDI COMMAND CENTER</div>
+    </div>
+    <nav class="nav">
+      <div class="nav-label">Analytics</div>
+      <div class="nav-item active"><span class="nav-icon">◈</span> Dashboard</div>
+      <div class="nav-item"><span class="nav-icon">⬡</span> Query Engine</div>
+      <div class="nav-item"><span class="nav-icon">◻</span> DRG Matrix</div>
+      <div class="nav-label">Clinical</div>
+      <div class="nav-item"><span class="nav-icon">✦</span> Query Templates</div>
+      <div class="nav-item"><span class="nav-icon">⊕</span> Provider Responses</div>
+      <div class="nav-item"><span class="nav-icon">◯</span> Audit Trail</div>
+      <div class="nav-label">System</div>
+      <div class="nav-item"><span class="nav-icon">⬢</span> FHIR Integration</div>
+      <div class="nav-item"><span class="nav-icon">◎</span> Compliance</div>
+      <div class="nav-item"><span class="nav-icon">⊞</span> Settings</div>
+    </nav>
+    <div class="sidebar-footer">
+      <span class="status-dot"></span>All agents online<br/>
+      <span style="margin-left:12px;margin-top:4px;display:block;">FHIR R4 · Epic Sandbox</span>
+    </div>
+  </aside>
+
+  <main class="main">
+    <div class="topbar">
+      <div class="page-title">CDI Analytics Dashboard</div>
+      <div class="topbar-right">
+        <span class="timestamp" id="clock"></span>
+        <span class="badge badge-green">Clinical Agent ● LIVE</span>
+        <span class="badge badge-blue">Compliance Agent ● LIVE</span>
+        <div class="avatar">PH</div>
+      </div>
+    </div>
+    <div class="content">
+      <div class="sync-bar">
+        <span class="status-dot"></span>
+        <span class="sync-label">FHIR R4 SYNTHETIC</span>
+        <span class="sync-sep">|</span>
+        <span>Epic EHR Sandbox</span>
+        <span class="sync-sep">|</span>
+        <span id="sync-resources">Initializing…</span>
+        <span class="sync-sep">|</span>
+        <span id="sync-time">—</span>
+        <button class="refresh-btn" id="refreshBtn" onclick="loadDashboard(true)">⟳ Refresh FHIR</button>
+      </div>
+      <div class="kpi-grid">
+        <div class="kpi-card green"><div class="kpi-label">Queries Sent (MTD)</div><div class="kpi-value" id="kpi-total">—</div><div class="kpi-delta" id="kpi-total-sub"> </div></div>
+        <div class="kpi-card blue"><div class="kpi-label">Response Rate</div><div class="kpi-value" id="kpi-rate">—</div><div class="kpi-delta" id="kpi-rate-sub"> </div></div>
+        <div class="kpi-card amber"><div class="kpi-label">Avg Response Time</div><div class="kpi-value" id="kpi-hrs">—</div><div class="kpi-delta" id="kpi-hrs-sub"> </div></div>
+        <div class="kpi-card red"><div class="kpi-label">Pending / Overdue</div><div class="kpi-value" id="kpi-overdue">—</div><div class="kpi-delta" id="kpi-overdue-sub"> </div></div>
+      </div>
+      <div class="grid-3 section-gap">
+        <div class="panel">
+          <div class="panel-header"><span class="panel-title">Recent CDI Queries</span><span class="fhir-tag">FHIR Task</span></div>
+          <div style="overflow-x:auto;">
+            <table>
+              <thead><tr><th>Query ID</th><th>Provider</th><th>Type</th><th>Trigger</th><th>Status</th><th>DRG Impact</th></tr></thead>
+              <tbody id="query-table-body"><tr><td colspan="6" style="padding:20px;color:var(--muted);text-align:center;font-family:'DM Mono',monospace;font-size:11px;">Initializing FHIR client…</td></tr></tbody>
+            </table>
+          </div>
+        </div>
+        <div class="panel">
+          <div class="panel-header"><span class="panel-title">System Alerts</span><span id="alert-badge" class="badge badge-red">—</span></div>
+          <div class="panel-body"><div class="alert-list" id="alert-list"><div style="color:var(--muted);font-size:12px;font-family:'DM Mono',monospace;">Initializing…</div></div></div>
+        </div>
+      </div>
+      <div class="grid-2 section-gap">
+        <div class="panel">
+          <div class="panel-header"><span class="panel-title">Provider Response Rates</span><span class="fhir-tag">FHIR Practitioner</span></div>
+          <div class="panel-body"><div class="bar-chart" id="provider-bars"></div></div>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:16px;">
+          <div class="panel">
+            <div class="panel-header"><span class="panel-title">Query Type Breakdown</span><span class="fhir-tag">FHIR Task.code</span></div>
+            <div class="panel-body"><div id="donut-wrap" class="donut-wrap"></div></div>
+          </div>
+          <div class="panel">
+            <div class="panel-header"><span class="panel-title">Revenue Impact MTD</span><span class="badge badge-green" id="revenue-total">—</span></div>
+            <div class="panel-body" style="padding:14px 20px;"><div class="bar-chart" id="revenue-bars"></div></div>
+          </div>
+        </div>
+      </div>
+      <div class="panel section-gap">
+        <div class="panel-header"><span class="panel-title">Top DRG Impact Matrix — Oncology</span><span class="badge badge-amber">MS-DRG v41</span></div>
+        <div class="panel-body"><div class="drg-grid" id="drg-grid"></div></div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<script>
+// ── FHIR CLIENT (INLINE) ──────────────────────────────────────────────────────
+(function() {
+  const PROVIDERS = [
+    {id:'prac-001',name:'Dr. Patel',    specialty:'Oncology'},
+    {id:'prac-002',name:'Dr. Chen',     specialty:'Hematology'},
+    {id:'prac-003',name:'Dr. Okonkwo', specialty:'Radiation Oncology'},
+    {id:'prac-004',name:'Dr. Nguyen',  specialty:'Surgical Oncology'},
+    {id:'prac-005',name:'Dr. Martinez',specialty:'Oncology'},
+    {id:'prac-006',name:'Dr. Williams',specialty:'Oncology'},
+    {id:'prac-007',name:'Dr. Thompson',specialty:'Hematology'},
+  ];
+  const DRG_CODES = [
+    {code:'055',label:'CNS tumors w MCC',impact:18400},{code:'180',label:'Resp neoplasm w MCC',impact:14200},
+    {code:'582',label:'Mastectomy w MCC',impact:12800},{code:'374',label:'Digestive malig w CC',impact:9100},
+    {code:'470',label:'Joint replacement',impact:8700},{code:'682',label:'Urinary malig w MCC',impact:7400},
+    {code:'840',label:'Lymphoma w MCC',impact:6900},{code:'597',label:'Skin graft malig',impact:5100},
+    {code:'435',label:'Malignant fever',impact:4300},{code:'791',label:'Prematurity w MCC',impact:3800},
+  ];
+  const QUERY_TYPES = ['CC/MCC','DRG','HAC','PSI','Mortality'];
+  const TRIGGERS = {'CC/MCC':['Sepsis indicator','AKI staging','Malnutrition','Respiratory failure'],'DRG':['Lymphoma staging','NSCLC histology','Bilateral vs unilateral','Principal dx clarification'],'HAC':['CLABSI risk flag','CAUTI prevention','DVT post-op','SSI screening'],'PSI':['PE post-op','Accidental puncture','Iatrogenic pneumothorax'],'Mortality':['NSCLC POA','Septic shock POA','CVA POA']};
+  const STATUSES = ['Pending','Responded','Overdue','Escalated'];
+  function rnd(a){return a[Math.floor(Math.random()*a.length)];}
+  function ri(min,max){return Math.floor(Math.random()*(max-min+1))+min;}
+  function rf(min,max){return parseFloat((Math.random()*(max-min)+min).toFixed(1));}
+  function delay(ms){return new Promise(r=>setTimeout(r,ms));}
+
+  function makeQueries(){
+    return Array.from({length:20},(_,i)=>{
+      const qtype=rnd(QUERY_TYPES),status=rnd(STATUSES),impact=qtype==='HAC'?-ri(2000,8000):ri(3000,18000),trigger=rnd(TRIGGERS[qtype]),provider=PROVIDERS[i%PROVIDERS.length];
+      return {resourceType:'Task',id:`QRY-${4800+i+1}`,status:status==='Responded'?'completed':status==='Overdue'?'failed':'in-progress',code:{coding:[{code:qtype}]},owner:{display:provider.name},_provider:provider,_status:status,_impact:impact,_trigger:trigger};
+    });
+  }
+  function makeProviderMetrics(queries){
+    return PROVIDERS.map(p=>{
+      const pq=queries.filter(q=>q._provider.id===p.id);
+      const responded=pq.filter(q=>q._status==='Responded').length;
+      const total=pq.length||1;
+      return {provider:p,total,responded,responseRate:Math.round((responded/total)*100),overdue:pq.filter(q=>q._status==='Overdue').length};
+    }).sort((a,b)=>b.responseRate-a.responseRate);
+  }
+
+  class FHIRClient {
+    constructor(){this._seed();}
+    _seed(){
+      this._queries=makeQueries();
+      this._providers=PROVIDERS;
+    }
+    refresh(){this._seed();}
+    async getCDIQueries(){await delay(ri(100,300));return {total:this._queries.length,entry:this._queries.map(r=>({resource:r}))};}
+    async getEncounters(){await delay(150);return {total:20,entry:[]};}
+    async getProviderMetrics(){await delay(200);return makeProviderMetrics(this._queries);}
+    async getRevenueImpact(){
+      await delay(180);
+      let ccmcc=0,drg=0,hac=0;
+      this._queries.forEach(q=>{if(q._status==='Responded'){if(q.code.coding[0].code==='CC/MCC')ccmcc+=q._impact;else if(q.code.coding[0].code==='DRG')drg+=q._impact;else if(q.code.coding[0].code==='HAC')hac+=Math.abs(q._impact);}});
+      return{ccmcc,drg,hac,total:ccmcc+drg+hac};
+    }
+    async getKPIs(){
+      await delay(150);
+      const total=this._queries.length,responded=this._queries.filter(q=>q._status==='Responded').length,overdue=this._queries.filter(q=>q._status==='Overdue').length,pending=this._queries.filter(q=>q._status==='Pending').length;
+      return{totalQueries:total,responseRate:Math.round((responded/total)*100),avgResponseHrs:rf(16,22),pending,overdue};
+    }
+  }
+  window.FHIRClient = new FHIRClient();
+})();
+
+// ── CLOCK ──────────────────────────────────────────────────────────────────────
+function updateClock(){document.getElementById('clock').textContent=new Date().toLocaleDateString('en-US',{month:'short',day:'numeric'})+' · '+new Date().toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit',second:'2-digit'});}
+updateClock();setInterval(updateClock,1000);
+
+// ── HELPERS ────────────────────────────────────────────────────────────────────
+function pillClass(t){return({'CC/MCC':'pill-CCMCC','DRG':'pill-DRG','HAC':'pill-HAC','PSI':'pill-PSI','Mortality':'pill-Mortality'})[t]||'pill-DRG';}
+function statusBadge(s){return s==='Responded'?'<span class="badge badge-green">Responded</span>':s==='Overdue'?'<span class="badge badge-red">Overdue</span>':s==='Escalated'?'<span class="badge badge-red">Escalated</span>':'<span class="badge badge-warn">Pending</span>';}
+function barColor(p){return p>=85?'var(--accent)':p>=70?'var(--accent2)':p>=55?'var(--accent3)':p>=40?'var(--warn)':'var(--danger)';}
+
+// ── LOAD ───────────────────────────────────────────────────────────────────────
+async function loadDashboard(refresh){
+  const btn=document.getElementById('refreshBtn');
+  btn.disabled=true;btn.innerHTML='<span class="spinning">⟳</span> Syncing…';
+  if(refresh) window.FHIRClient.refresh();
+  const[kpis,queries,provMetrics,revenue,enc]=await Promise.all([
+    FHIRClient.getKPIs(),FHIRClient.getCDIQueries(),FHIRClient.getProviderMetrics(),FHIRClient.getRevenueImpact(),FHIRClient.getEncounters()
+  ]);
+  // Sync bar
+  document.getElementById('sync-resources').textContent=(queries.total+enc.total)+' FHIR resources loaded';
+  document.getElementById('sync-time').textContent='Synced '+new Date().toLocaleTimeString();
+  // KPIs
+  document.getElementById('kpi-total').textContent=kpis.totalQueries;
+  document.getElementById('kpi-total-sub').innerHTML='<span>↑ 18%</span> vs last month';
+  document.getElementById('kpi-rate').textContent=kpis.responseRate+'%';
+  document.getElementById('kpi-rate-sub').innerHTML='<span>↑ 4.1%</span> vs last month';
+  document.getElementById('kpi-hrs').textContent=kpis.avgResponseHrs+'h';
+  document.getElementById('kpi-hrs-sub').innerHTML='<span>↓ 2.1h</span> improvement';
+  document.getElementById('kpi-overdue').textContent=kpis.pending+kpis.overdue;
+  document.getElementById('kpi-overdue-sub').innerHTML=kpis.overdue+' overdue &gt;48h';
+  // Query table
+  document.getElementById('query-table-body').innerHTML=queries.entry.slice(0,8).map(e=>{
+    const q=e.resource,qtype=q.code.coding[0].code,ic=q._impact>=0?'var(--accent)':'var(--danger)',is=(q._impact>=0?'+':'-')+'$'+Math.abs(q._impact).toLocaleString();
+    return`<tr><td class="td-mono">${q.id}</td><td>${q.owner.display}</td><td><span class="pill ${pillClass(qtype)}">${qtype}</span></td><td style="color:var(--muted);font-size:12px;">${q._trigger}</td><td>${statusBadge(q._status)}</td><td class="td-mono" style="color:${ic}">${is}</td></tr>`;
+  }).join('');
+  // Alerts
+  const crit=kpis.overdue;
+  document.getElementById('alert-badge').textContent=crit+' Critical';
+  const overdueQ=queries.entry.filter(e=>e.resource._status==='Overdue').slice(0,2);
+  document.getElementById('alert-list').innerHTML=[
+    `<div class="alert-item crit"><span class="alert-icon">⚠</span><div class="alert-text"><div class="alert-title">${crit} quer${crit===1?'y':'ies'} overdue &gt;48h</div><div class="alert-sub">Escalation required</div></div></div>`,
+    ...overdueQ.map(e=>`<div class="alert-item crit"><span class="alert-icon">⬡</span><div class="alert-text"><div class="alert-title">${e.resource._trigger} unresolved</div><div class="alert-sub">${e.resource.id} · ${e.resource.owner.display}</div></div></div>`),
+    `<div class="alert-item warn"><span class="alert-icon">◈</span><div class="alert-text"><div class="alert-title">DRG spec. mismatch detected</div><div class="alert-sub">Bilateral vs unilateral · Review needed</div></div></div>`,
+    `<div class="alert-item info"><span class="alert-icon">✦</span><div class="alert-text"><div class="alert-title">FHIR R4 sync completed</div><div class="alert-sub">Epic Sandbox · ${queries.total+enc.total} resources · Just now</div></div></div>`
+  ].join('');
+  // Provider bars
+  document.getElementById('provider-bars').innerHTML=provMetrics.map(m=>`<div class="bar-row"><div class="bar-label">${m.provider.name}</div><div class="bar-track"><div class="bar-fill" style="width:${m.responseRate}%;background:${barColor(m.responseRate)};"></div></div><div class="bar-val">${m.responseRate}%</div></div>`).join('');
+  // Donut
+  const typeCounts={};queries.entry.forEach(e=>{const t=e.resource.code.coding[0].code;typeCounts[t]=(typeCounts[t]||0)+1;});
+  const tot=queries.total||1,colors={'CC/MCC':'var(--accent)','DRG':'var(--accent2)','HAC':'var(--danger)','PSI':'#a855f7','Mortality':'var(--accent3)'},circ=2*Math.PI*30;
+  let off=0;
+  const segs=Object.entries(typeCounts).map(([type,count])=>{const pct=count/tot,dash=pct*circ,seg=`<circle cx="40" cy="40" r="30" fill="none" stroke="${colors[type]||'var(--subtle)'}" stroke-width="14" stroke-dasharray="${dash.toFixed(1)} ${(circ-dash).toFixed(1)}" stroke-dashoffset="${(-off).toFixed(1)}" transform="rotate(-90 40 40)"/>`;off+=dash;return{seg,type,pct:Math.round(pct*100)};});
+  document.getElementById('donut-wrap').innerHTML=`<svg class="donut" viewBox="0 0 80 80"><circle cx="40" cy="40" r="30" fill="none" stroke="var(--surface2)" stroke-width="14"/>${segs.map(s=>s.seg).join('')}</svg><div class="donut-legend">${segs.map(s=>`<div class="legend-item"><span class="legend-dot" style="background:${colors[s.type]||'var(--subtle)'}"></span>${s.type}<span class="legend-val">${s.pct}%</span></div>`).join('')}</div>`;
+  // Revenue
+  const revMax=Math.max(revenue.ccmcc,revenue.drg,revenue.hac)||1;
+  document.getElementById('revenue-total').textContent='+$'+(revenue.total/1000).toFixed(0)+'K';
+  document.getElementById('revenue-bars').innerHTML=`<div class="bar-row"><div class="bar-label">CC/MCC capture</div><div class="bar-track"><div class="bar-fill" style="width:${(revenue.ccmcc/revMax*100).toFixed(0)}%;background:var(--accent);"></div></div><div class="bar-val" style="width:56px;font-size:10px;">$${(revenue.ccmcc/1000).toFixed(0)}K</div></div><div class="bar-row"><div class="bar-label">DRG optimization</div><div class="bar-track"><div class="bar-fill" style="width:${(revenue.drg/revMax*100).toFixed(0)}%;background:var(--accent2);"></div></div><div class="bar-val" style="width:56px;font-size:10px;">$${(revenue.drg/1000).toFixed(0)}K</div></div><div class="bar-row"><div class="bar-label">HAC avoidance</div><div class="bar-track"><div class="bar-fill" style="width:${(revenue.hac/revMax*100).toFixed(0)}%;background:var(--accent3);"></div></div><div class="bar-val" style="width:56px;font-size:10px;">$${(revenue.hac/1000).toFixed(0)}K</div></div>`;
+  // DRG matrix
+  const drgData=[{code:'055',label:'CNS tumors w MCC',impact:18400,tier:'high'},{code:'180',label:'Resp neoplasm w MCC',impact:14200,tier:'high'},{code:'582',label:'Mastectomy w MCC',impact:12800,tier:'high'},{code:'374',label:'Digestive malig w CC',impact:9100,tier:'med'},{code:'470',label:'Joint replacement',impact:8700,tier:'med'},{code:'682',label:'Urinary malig w MCC',impact:7400,tier:'med'},{code:'840',label:'Lymphoma w MCC',impact:6900,tier:'med'},{code:'597',label:'Skin graft malig',impact:5100,tier:'low'},{code:'435',label:'Malignant fever',impact:4300,tier:'low'},{code:'791',label:'Prematurity w MCC',impact:3800,tier:'low'}];
+  document.getElementById('drg-grid').innerHTML=drgData.map(d=>`<div class="drg-cell ${d.tier}"><div class="drg-code">DRG ${d.code}</div><div class="drg-impact">+$${(d.impact/1000).toFixed(1)}K</div><div class="drg-label">${d.label}</div></div>`).join('');
+
+  btn.disabled=false;btn.innerHTML='⟳ Refresh FHIR';
+}
+
+// ── INIT ───────────────────────────────────────────────────────────────────────
+loadDashboard(false);
+setInterval(()=>loadDashboard(true),60000);
+</script>
+</body>
+</html>
