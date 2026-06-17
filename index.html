@@ -110,6 +110,123 @@ rel="stylesheet"
   .fhir-tag{font-family:'DM Mono',monospace;font-size:9px;padding:2px 6px;background:rgba(59,130,246,.1);color:var(--accent2);border-radius:3px;letter-spacing:.05em}
   .timestamp{font-family:'DM Mono',monospace;font-size:10px;color:var(--muted)}
   .section-gap{margin-bottom:16px}
+
+  /* ── PAGE ROUTING ─────────────────────────────────────────── */
+  .page { display:none; }
+  .page.active { display:block; }
+
+  /* ── EPIC AUTH PANEL ──────────────────────────────────────── */
+  .epic-card { background:var(--surface); border:1px solid var(--border); border-radius:12px; overflow:hidden; max-width:580px; margin-bottom:20px; }
+  .epic-header { display:flex; justify-content:space-between; align-items:center; padding:14px 20px; border-bottom:1px solid var(--border); background:rgba(10,22,40,.6); }
+  .epic-title { display:flex; align-items:center; gap:8px; font-family:'Syne',sans-serif; font-weight:600; font-size:13px; }
+  .epic-dot { width:10px; height:10px; border-radius:50%; background:#c0392b; display:inline-block; flex-shrink:0; }
+  .conn-badge { font-family:'DM Mono',monospace; font-size:10px; padding:3px 10px; border-radius:20px; border:1px solid; letter-spacing:.04em; }
+  .epic-body { padding:20px; }
+  .epic-desc { color:var(--muted); font-size:13px; line-height:1.7; margin-bottom:16px; }
+  .scope-label { font-family:'DM Mono',monospace; font-size:10px; color:var(--muted); text-transform:uppercase; letter-spacing:.1em; margin-bottom:8px; }
+  .scope-grid { display:flex; flex-wrap:wrap; gap:6px; margin-bottom:18px; }
+  .scope-tag { background:rgba(59,130,246,.1); color:var(--accent2); font-family:'DM Mono',monospace; font-size:10px; padding:3px 8px; border-radius:4px; }
+  .epic-btn { width:100%; padding:12px; background:linear-gradient(135deg,#0ea5e9,#0284c7); color:#fff; border:none; border-radius:8px; font-family:'Syne',sans-serif; font-weight:600; font-size:13px; cursor:pointer; transition:opacity .15s; }
+  .epic-btn:hover { opacity:.9; }
+  .epic-btn:disabled { opacity:.4; cursor:default; }
+  .epic-btn-secondary { width:100%; padding:10px; background:transparent; color:var(--muted); border:1px solid var(--border); border-radius:8px; font-size:12px; cursor:pointer; margin-top:8px; }
+  .epic-hint { color:var(--subtle); font-family:'DM Mono',monospace; font-size:10px; text-align:center; margin-top:10px; }
+  .epic-hint a { color:var(--accent2); }
+  .epic-success { background:rgba(0,212,170,.08); color:var(--accent); border-radius:8px; padding:10px 14px; font-size:13px; font-weight:600; margin-bottom:12px; border:1px solid rgba(0,212,170,.2); }
+  .epic-error { background:rgba(239,68,68,.08); color:var(--danger); border-radius:8px; padding:10px 14px; font-size:13px; margin-bottom:12px; border:1px solid rgba(239,68,68,.2); }
+  .token-box { background:var(--surface2); border-radius:8px; padding:12px; margin-bottom:12px; }
+  .token-label { font-family:'DM Mono',monospace; font-size:10px; color:var(--muted); text-transform:uppercase; letter-spacing:.08em; display:block; margin-bottom:4px; }
+  .token-val { font-family:'DM Mono',monospace; color:var(--accent2); font-size:11px; word-break:break-all; }
+  .token-exp { font-family:'DM Mono',monospace; font-size:10px; color:var(--subtle); margin-top:4px; display:block; }
+  .patient-card { background:var(--surface2); border-radius:8px; padding:12px; margin-bottom:12px; border-left:3px solid var(--accent2); }
+  .patient-name { font-family:'Syne',sans-serif; font-weight:600; font-size:14px; margin-bottom:5px; }
+  .patient-meta { display:flex; gap:16px; color:var(--muted); font-family:'DM Mono',monospace; font-size:11px; }
+  .fhir-summary { margin-top:16px; margin-bottom:12px; }
+  .fhir-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:8px; margin-top:8px; }
+  .fhir-cell { background:var(--surface2); border-radius:8px; padding:10px; text-align:center; }
+  .fhir-icon { font-size:15px; display:block; margin-bottom:2px; }
+  .fhir-count { font-family:'Syne',sans-serif; font-weight:800; font-size:20px; color:var(--accent2); display:block; }
+  .fhir-label { font-family:'DM Mono',monospace; font-size:9px; color:var(--muted); text-transform:uppercase; letter-spacing:.06em; }
+  .config-notice { background:rgba(245,158,11,.08); border:1px solid rgba(245,158,11,.25); border-radius:8px; padding:12px 14px; margin-bottom:16px; font-size:12px; color:var(--accent3); font-family:'DM Mono',monospace; line-height:1.6; }
+  .config-notice code { background:rgba(245,158,11,.15); padding:1px 5px; border-radius:3px; }
+
+  /* ── AMBIENT CDI PANEL ────────────────────────────────────── */
+  .ambient-card { background:var(--surface); border:1px solid var(--border); border-radius:12px; overflow:hidden; }
+  .ambient-header { display:flex; justify-content:space-between; align-items:center; padding:14px 20px; border-bottom:1px solid var(--border); background:rgba(10,22,40,.6); }
+  .ambient-title { font-family:'Syne',sans-serif; font-weight:600; font-size:13px; display:flex; align-items:center; gap:8px; }
+  .pipeline-stages { display:flex; align-items:center; padding:10px 20px; background:rgba(10,15,26,.5); border-bottom:1px solid var(--border); }
+  .stage-item { display:flex; align-items:center; flex:1; }
+  .stage-dot { width:22px; height:22px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:10px; color:#fff; font-weight:700; flex-shrink:0; transition:all .3s; }
+  .stage-dot.done { background:var(--accent); }
+  .stage-dot.active { background:var(--accent2); box-shadow:0 0 0 3px rgba(59,130,246,.25); }
+  .stage-dot.idle { background:var(--surface2); color:var(--muted); }
+  .stage-lbl { font-family:'DM Mono',monospace; font-size:10px; margin-left:5px; color:var(--muted); white-space:nowrap; }
+  .stage-lbl.active { color:var(--text); }
+  .stage-lbl.done { color:var(--accent); }
+  .stage-conn { flex:1; height:1px; background:var(--surface2); margin:0 4px; }
+  .stage-conn.done { background:var(--accent); }
+  .ambient-body { padding:20px; }
+  .idle-pane { text-align:center; }
+  .mic-hero { font-size:48px; margin-bottom:12px; }
+  .idle-desc { color:var(--muted); font-size:13px; line-height:1.7; margin-bottom:20px; max-width:480px; margin-left:auto; margin-right:auto; }
+  .record-btn { padding:12px 32px; background:linear-gradient(135deg,#dc2626,#b91c1c); color:#fff; border:none; border-radius:8px; font-family:'Syne',sans-serif; font-weight:700; font-size:14px; cursor:pointer; transition:all .15s; }
+  .record-btn:hover { transform:translateY(-1px); box-shadow:0 4px 20px rgba(220,38,38,.4); }
+  .record-btn:disabled { opacity:.4; cursor:default; transform:none; box-shadow:none; }
+  .waveform { display:flex; align-items:center; justify-content:center; gap:3px; height:56px; margin-bottom:8px; }
+  .wave-bar { width:5px; background:linear-gradient(to top, #dc2626, #f87171); border-radius:3px; min-height:4px; transition:height .08s ease; }
+  .rec-timer { text-align:center; font-family:'Syne',sans-serif; font-weight:800; font-size:26px; color:var(--danger); margin-bottom:12px; }
+  .transcript-box { background:var(--surface2); border-radius:8px; padding:14px; margin-bottom:12px; min-height:80px; max-height:200px; overflow-y:auto; }
+  .transcript-text { color:var(--text); font-size:13px; line-height:1.7; }
+  .interim-text { color:var(--subtle); font-style:italic; }
+  .stop-btn { width:100%; padding:12px; background:linear-gradient(135deg,#0ea5e9,#0284c7); color:#fff; border:none; border-radius:8px; font-family:'Syne',sans-serif; font-weight:600; font-size:13px; cursor:pointer; margin-top:8px; }
+  .processing-steps { margin-bottom:16px; }
+  .proc-step { display:flex; align-items:center; gap:10px; padding:8px 0; border-bottom:1px solid var(--border); }
+  .proc-dot { width:20px; height:20px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:10px; color:#fff; font-weight:700; flex-shrink:0; }
+  .proc-dot.done { background:var(--accent); }
+  .proc-dot.active { background:var(--accent2); animation:pulse 1s infinite; }
+  .proc-dot.idle { background:var(--surface2); }
+  .proc-label { font-size:13px; color:var(--muted); }
+  .proc-label.done { color:var(--accent); }
+  .proc-label.active { color:var(--text); }
+  .query-card { background:rgba(10,15,26,.6); border:1px solid var(--border); border-radius:10px; padding:16px; margin-bottom:12px; }
+  .query-card-header { display:flex; align-items:center; gap:8px; margin-bottom:12px; flex-wrap:wrap; }
+  .query-id-tag { background:rgba(59,130,246,.12); color:var(--accent2); padding:3px 8px; border-radius:4px; font-family:'DM Mono',monospace; font-size:11px; font-weight:700; }
+  .query-type-tag { color:var(--muted); font-size:13px; }
+  .priority-stat { padding:2px 8px; border-radius:4px; font-family:'DM Mono',monospace; font-size:10px; font-weight:700; border:1px solid; margin-left:auto; }
+  .priority-STAT { background:rgba(239,68,68,.1); color:var(--danger); border-color:rgba(239,68,68,.3); }
+  .priority-Routine { background:rgba(0,212,170,.1); color:var(--accent); border-color:rgba(0,212,170,.3); }
+  .priority-Informational { background:rgba(59,130,246,.1); color:var(--accent2); border-color:rgba(59,130,246,.3); }
+  .qsec-label { font-family:'DM Mono',monospace; font-size:10px; color:var(--muted); text-transform:uppercase; letter-spacing:.08em; margin-bottom:6px; }
+  .qsec { margin-bottom:12px; }
+  .q-indicator { color:var(--muted); font-size:13px; line-height:1.6; padding:2px 0; }
+  .q-text { color:var(--text); font-size:13px; line-height:1.7; background:var(--surface2); border-radius:6px; padding:10px; border-left:3px solid var(--accent2); }
+  .q-option { color:var(--text); font-size:13px; padding:4px 8px; border-radius:4px; background:var(--surface2); margin-bottom:4px; }
+  .icd-chip { display:flex; gap:8px; align-items:baseline; background:var(--surface2); border-radius:4px; padding:5px 8px; margin-bottom:4px; }
+  .icd-code { font-family:'DM Mono',monospace; font-size:12px; font-weight:700; color:#a855f7; flex-shrink:0; }
+  .icd-desc { font-size:12px; color:var(--muted); }
+  .drg-impact-row { display:flex; gap:8px; align-items:flex-start; background:rgba(245,158,11,.06); border:1px solid rgba(245,158,11,.2); border-radius:6px; padding:8px 10px; margin-bottom:8px; }
+  .drg-impact-text { color:var(--accent3); font-size:12px; line-height:1.5; }
+  .q-excerpt { font-size:12px; color:var(--subtle); border-top:1px solid var(--border); padding-top:8px; margin-top:8px; font-style:italic; }
+  .query-tabs { display:flex; gap:6px; margin-bottom:12px; flex-wrap:wrap; }
+  .qtab { padding:5px 12px; background:var(--surface2); color:var(--muted); border:1px solid var(--border); border-radius:6px; cursor:pointer; font-family:'DM Mono',monospace; font-size:11px; transition:all .15s; }
+  .qtab.active { background:rgba(59,130,246,.12); color:var(--accent2); border-color:rgba(59,130,246,.4); }
+  .ambient-actions { display:flex; gap:8px; margin-bottom:12px; }
+  .ambient-primary-btn { flex:1; padding:11px; background:linear-gradient(135deg,var(--accent),#00a888); color:var(--bg); border:none; border-radius:8px; font-family:'Syne',sans-serif; font-weight:700; font-size:13px; cursor:pointer; }
+  .ambient-secondary-btn { padding:11px 16px; background:transparent; color:var(--muted); border:1px solid var(--border); border-radius:8px; font-size:13px; cursor:pointer; }
+  .raw-transcript { margin-top:8px; }
+  .raw-transcript summary { color:var(--subtle); font-family:'DM Mono',monospace; font-size:11px; cursor:pointer; }
+  .raw-transcript p { color:var(--subtle); font-size:12px; line-height:1.6; margin-top:8px; font-style:italic; }
+  .ambient-error { background:rgba(239,68,68,.08); color:var(--danger); border-radius:8px; padding:12px; font-size:13px; margin-bottom:16px; border:1px solid rgba(239,68,68,.2); }
+  .warn-banner { background:rgba(249,115,22,.08); border:1px solid rgba(249,115,22,.25); border-radius:8px; padding:10px 14px; font-size:12px; color:var(--warn); margin-bottom:12px; font-family:'DM Mono',monospace; }
+
+  /* ── LIVE QUERY FEED in Dashboard ────────────────────────── */
+  .ambient-feed { margin-top:16px; }
+  .feed-item { display:flex; gap:10px; align-items:flex-start; padding:10px; background:var(--surface2); border-radius:8px; margin-bottom:6px; border-left:3px solid var(--accent); animation:fadeUp .3s ease; }
+  .feed-id { font-family:'DM Mono',monospace; font-size:10px; color:var(--accent2); flex-shrink:0; padding-top:1px; }
+  .feed-body { flex:1; }
+  .feed-type { font-size:11px; color:var(--muted); font-family:'DM Mono',monospace; }
+  .feed-text { font-size:12px; color:var(--text); margin-top:2px; line-height:1.5; }
+  .feed-drg { font-family:'DM Mono',monospace; font-size:10px; color:var(--accent3); margin-top:3px; }
 </style>
 </head>
 <body>
@@ -121,17 +238,18 @@ rel="stylesheet"
     </div>
     <nav class="nav">
       <div class="nav-label">Analytics</div>
-      <div class="nav-item active"><span class="nav-icon">◈</span> Dashboard</div>
-      <div class="nav-item"><span class="nav-icon">⬡</span> Query Engine</div>
-      <div class="nav-item"><span class="nav-icon">◻</span> DRG Matrix</div>
+      <div class="nav-item active" data-page="dashboard"><span class="nav-icon">◈</span> Dashboard</div>
+      <div class="nav-item" data-page="dashboard"><span class="nav-icon">⬡</span> Query Engine</div>
+      <div class="nav-item" data-page="dashboard"><span class="nav-icon">◻</span> DRG Matrix</div>
       <div class="nav-label">Clinical</div>
-      <div class="nav-item"><span class="nav-icon">✦</span> Query Templates</div>
-      <div class="nav-item"><span class="nav-icon">⊕</span> Provider Responses</div>
-      <div class="nav-item"><span class="nav-icon">◯</span> Audit Trail</div>
+      <div class="nav-item" data-page="dashboard"><span class="nav-icon">✦</span> Query Templates</div>
+      <div class="nav-item" data-page="dashboard"><span class="nav-icon">⊕</span> Provider Responses</div>
+      <div class="nav-item" data-page="dashboard"><span class="nav-icon">◯</span> Audit Trail</div>
       <div class="nav-label">System</div>
-      <div class="nav-item"><span class="nav-icon">⬢</span> FHIR Integration</div>
-      <div class="nav-item"><span class="nav-icon">◎</span> Compliance</div>
-      <div class="nav-item"><span class="nav-icon">⊞</span> Settings</div>
+      <div class="nav-item" data-page="fhir"><span class="nav-icon">⬢</span> FHIR Integration</div>
+      <div class="nav-item" data-page="ambient"><span class="nav-icon">🎙️</span> Ambient CDI</div>
+      <div class="nav-item" data-page="dashboard"><span class="nav-icon">◎</span> Compliance</div>
+      <div class="nav-item" data-page="dashboard"><span class="nav-icon">⊞</span> Settings</div>
     </nav>
     <div class="sidebar-footer">
       <span class="status-dot"></span>All agents online<br/>
@@ -141,7 +259,7 @@ rel="stylesheet"
 
   <main class="main">
     <div class="topbar">
-      <div class="page-title">CDI Analytics Dashboard</div>
+      <div class="page-title" id="pageTitle">CDI Analytics Dashboard</div>
       <div class="topbar-right">
         <span class="timestamp" id="clock"></span>
         <span class="badge badge-green">Clinical Agent ● LIVE</span>
@@ -150,6 +268,7 @@ rel="stylesheet"
       </div>
     </div>
     <div class="content">
+      <div class="page active" id="page-dashboard">
       <div class="sync-bar">
         <span class="status-dot"></span>
         <span class="sync-label">FHIR R4 SYNTHETIC</span>
@@ -201,6 +320,43 @@ rel="stylesheet"
       <div class="panel section-gap">
         <div class="panel-header"><span class="panel-title">Top DRG Impact Matrix — Oncology</span><span class="badge badge-amber">MS-DRG v41</span></div>
         <div class="panel-body"><div class="drg-grid" id="drg-grid"></div></div>
+      </div>
+      </div>
+
+      <!-- ── FHIR / EPIC INTEGRATION PAGE ─────────────────────────────── -->
+      <div class="page" id="page-fhir">
+        <div class="epic-card">
+          <div class="epic-header">
+            <div class="epic-title"><span class="epic-dot"></span> Epic SMART on FHIR</div>
+            <span class="conn-badge" id="epicStatusBadge" style="color:var(--muted);border-color:var(--muted);">Not Connected</span>
+          </div>
+          <div class="epic-body" id="epicBody">
+            <!-- populated by epicRender() -->
+          </div>
+        </div>
+      </div>
+
+      <!-- ── AMBIENT CDI PIPELINE PAGE ────────────────────────────────── -->
+      <div class="page" id="page-ambient">
+        <div class="ambient-card">
+          <div class="ambient-header">
+            <div class="ambient-title">🎙️ Ambient CDI Pipeline</div>
+            <span class="conn-badge" id="ambientStatusBadge" style="color:var(--muted);border-color:var(--muted);">Ready</span>
+          </div>
+          <div class="pipeline-stages" id="pipelineStages"></div>
+          <div class="ambient-body" id="ambientBody">
+            <!-- populated by ambientRender() -->
+          </div>
+        </div>
+
+        <div class="panel section-gap" style="margin-top:16px;">
+          <div class="panel-header"><span class="panel-title">Generated Queries — Live Feed</span><span class="fhir-tag">Pushed to Dashboard</span></div>
+          <div class="panel-body">
+            <div class="ambient-feed" id="ambientFeed">
+              <div style="color:var(--muted);font-size:12px;font-family:'DM Mono',monospace;">No ambient queries generated yet this session.</div>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   </main>
@@ -336,9 +492,417 @@ async function loadDashboard(refresh){
   btn.disabled=false;btn.innerHTML='⟳ Refresh FHIR';
 }
 
+// ══════════════════════════════════════════════════════════════════════════════
+// ── NAV ROUTING ──────────────────────────────────────────────────────────────
+// ══════════════════════════════════════════════════════════════════════════════
+const PAGE_TITLES={dashboard:'CDI Analytics Dashboard',fhir:'FHIR Integration · Epic SMART on FHIR',ambient:'Ambient CDI Pipeline'};
+document.querySelectorAll('.nav-item[data-page]').forEach(item=>{
+  item.addEventListener('click',()=>{
+    document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
+    item.classList.add('active');
+    const page=item.dataset.page;
+    document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+    document.getElementById('page-'+page).classList.add('active');
+    document.getElementById('pageTitle').textContent=PAGE_TITLES[page];
+  });
+});
+
+// ══════════════════════════════════════════════════════════════════════════════
+// ── EPIC SMART ON FHIR OAUTH2 MODULE ─────────────────────────────────────────
+// ══════════════════════════════════════════════════════════════════════════════
+const EPIC_CONFIG={
+  CLIENT_ID:'df32453b-2f40-44ef-9943-0c167417bdc3',                       // Epic sandbox Non-Production Client ID (Oncology AI Fleet - CDI Dashboard)
+  REDIRECT_URI:window.location.origin+window.location.pathname,           // must match Epic app registration exactly
+  FHIR_BASE_URL:'https://fhir.epic.com/interconnect-fhir-oauth/api/FHIR/R4',
+  AUTH_URL:'https://fhir.epic.com/interconnect-fhir-oauth/oauth2/authorize',
+  TOKEN_URL:'https://fhir.epic.com/interconnect-fhir-oauth/oauth2/token',
+  SCOPES:['openid','fhirUser','launch/patient','patient/Patient.read','patient/Condition.read','patient/Observation.read','patient/DiagnosticReport.read','patient/MedicationRequest.read','patient/Procedure.read','patient/Encounter.read'].join(' ')
+};
+const SCOPE_LABELS={'openid':'Identity','fhirUser':'FHIR User','launch/patient':'Patient Context','patient/Patient.read':'Demographics','patient/Condition.read':'Diagnoses','patient/Observation.read':'Labs & Vitals','patient/DiagnosticReport.read':'Path/Radiology','patient/MedicationRequest.read':'Medications','patient/Procedure.read':'Procedures','patient/Encounter.read':'Encounters'};
+
+const EpicAuth=(function(){
+  let state={status:'idle',tokens:null,patient:null,fhirData:{},error:null,loadingResources:false};
+
+  function b64url(bytes){return btoa(String.fromCharCode(...bytes)).replace(/\+/g,'-').replace(/\//g,'_').replace(/=/g,'');}
+  function genVerifier(){const a=new Uint8Array(64);crypto.getRandomValues(a);return b64url(a);}
+  async function genChallenge(v){const d=await crypto.subtle.digest('SHA-256',new TextEncoder().encode(v));return b64url(new Uint8Array(d));}
+  function genState(){const a=new Uint8Array(16);crypto.getRandomValues(a);return Array.from(a,b=>b.toString(16).padStart(2,'0')).join('');}
+
+  const Store={
+    save(t){sessionStorage.setItem('epic_tokens',JSON.stringify(t));sessionStorage.setItem('epic_token_time',Date.now().toString());},
+    load(){const raw=sessionStorage.getItem('epic_tokens'),time=sessionStorage.getItem('epic_token_time');if(!raw||!time)return null;const t=JSON.parse(raw);const elapsed=(Date.now()-parseInt(time))/1000;if(elapsed>(t.expires_in||3600)-60)return null;return t;},
+    clear(){['epic_tokens','epic_token_time','pkce_verifier','oauth_state'].forEach(k=>sessionStorage.removeItem(k));}
+  };
+
+  async function init(){
+    const existing=Store.load();
+    if(existing){state.tokens=existing;state.status='authenticated';render();return;}
+    const params=new URLSearchParams(window.location.search);
+    const code=params.get('code'),retState=params.get('state'),errParam=params.get('error');
+    if(errParam){state.error='Epic authorization denied: '+(params.get('error_description')||errParam);state.status='error';render();return;}
+    if(code&&retState){await handleCallback(code,retState);return;}
+    render();
+  }
+
+  async function connect(){
+    if(EPIC_CONFIG.CLIENT_ID==='YOUR_CLIENT_ID_HERE'){state.error='Configure CLIENT_ID in EPIC_CONFIG before connecting.';state.status='error';render();return;}
+    state.status='authorizing';state.error=null;render();
+    const verifier=genVerifier(),challenge=await genChallenge(verifier),oauthState=genState();
+    sessionStorage.setItem('pkce_verifier',verifier);sessionStorage.setItem('oauth_state',oauthState);
+    const p=new URLSearchParams({response_type:'code',client_id:EPIC_CONFIG.CLIENT_ID,redirect_uri:EPIC_CONFIG.REDIRECT_URI,scope:EPIC_CONFIG.SCOPES,state:oauthState,code_challenge:challenge,code_challenge_method:'S256',aud:EPIC_CONFIG.FHIR_BASE_URL});
+    window.location.href=EPIC_CONFIG.AUTH_URL+'?'+p.toString();
+  }
+
+  async function handleCallback(code,retState){
+    state.status='exchanging';render();
+    const savedState=sessionStorage.getItem('oauth_state'),verifier=sessionStorage.getItem('pkce_verifier');
+    if(retState!==savedState){state.error='OAuth state mismatch — possible CSRF. Please try again.';state.status='error';render();return;}
+    try{
+      const body=new URLSearchParams({grant_type:'authorization_code',code,redirect_uri:EPIC_CONFIG.REDIRECT_URI,client_id:EPIC_CONFIG.CLIENT_ID,code_verifier:verifier});
+      const res=await fetch(EPIC_CONFIG.TOKEN_URL,{method:'POST',headers:{'Content-Type':'application/x-www-form-urlencoded'},body:body.toString()});
+      if(!res.ok){const e=await res.json().catch(()=>({}));throw new Error(e.error_description||('Token exchange failed: '+res.status));}
+      const tokenData=await res.json();
+      Store.save(tokenData);state.tokens=tokenData;state.status='authenticated';
+      window.history.replaceState({},'',window.location.pathname);
+      if(tokenData.patient)await fetchPatient(tokenData.access_token,tokenData.patient);
+      render();
+    }catch(err){state.error=err.message;state.status='error';render();}
+  }
+
+  async function fhirFetch(resource,params={}){
+    if(!state.tokens?.access_token)throw new Error('Not authenticated');
+    const url=new URL(EPIC_CONFIG.FHIR_BASE_URL+'/'+resource);
+    Object.entries(params).forEach(([k,v])=>url.searchParams.set(k,v));
+    const res=await fetch(url.toString(),{headers:{Authorization:'Bearer '+state.tokens.access_token,Accept:'application/fhir+json'}});
+    if(!res.ok)throw new Error('FHIR '+resource+' fetch failed: '+res.status);
+    return res.json();
+  }
+
+  async function fetchPatient(accessToken,patientId){
+    try{
+      const res=await fetch(EPIC_CONFIG.FHIR_BASE_URL+'/Patient/'+patientId,{headers:{Authorization:'Bearer '+accessToken,Accept:'application/fhir+json'}});
+      state.patient=await res.json();
+    }catch(e){console.error('Patient fetch error:',e);}
+  }
+
+  async function fetchCDIResources(){
+    if(!state.tokens?.patient){state.error='No patient context in token. Launch from Epic EHR for patient context.';render();return;}
+    state.loadingResources=true;render();
+    try{
+      const pid=state.tokens.patient;
+      const results=await Promise.allSettled([
+        fhirFetch('Condition',{patient:pid,category:'encounter-diagnosis'}),
+        fhirFetch('Observation',{patient:pid,category:'laboratory'}),
+        fhirFetch('DiagnosticReport',{patient:pid}),
+        fhirFetch('MedicationRequest',{patient:pid,status:'active'}),
+        fhirFetch('Procedure',{patient:pid}),
+        fhirFetch('Encounter',{patient:pid,_count:'10',_sort:'-date'})
+      ]);
+      const keys=['conditions','observations','diagnosticReports','medications','procedures','encounters'];
+      state.fhirData={};keys.forEach((k,i)=>{state.fhirData[k]=results[i].status==='fulfilled'?results[i].value:null;});
+    }catch(err){state.error='FHIR data fetch error: '+err.message;}
+    state.loadingResources=false;render();
+  }
+
+  function logout(){Store.clear();state={status:'idle',tokens:null,patient:null,fhirData:{},error:null,loadingResources:false};render();}
+
+  function scopeGridHtml(){
+    return EPIC_CONFIG.SCOPES.split(' ').map(s=>`<span class="scope-tag">${SCOPE_LABELS[s]||s}</span>`).join('');
+  }
+
+  function patientCardHtml(){
+    if(!state.patient)return'';
+    const name=state.patient.name?.[0];
+    const fullName=name?((name.given||[]).join(' ')+' '+(name.family||'')).trim():'Unknown Patient';
+    const dob=state.patient.birthDate||'—',gender=state.patient.gender||'—';
+    const mrn=state.patient.identifier?.find(i=>i.type?.coding?.[0]?.code==='MR')?.value||'—';
+    return`<div class="patient-card"><div class="patient-name">${fullName}</div><div class="patient-meta"><span>DOB: ${dob}</span><span>Sex: ${gender}</span><span>MRN: ${mrn}</span></div></div>`;
+  }
+
+  function fhirSummaryHtml(){
+    if(!Object.keys(state.fhirData).length)return'';
+    const counts=[['conditions','Conditions','🔬'],['observations','Labs','🧪'],['diagnosticReports','Reports','📋'],['medications','Medications','💊'],['procedures','Procedures','⚕️'],['encounters','Encounters','🏥']];
+    return`<div class="fhir-summary"><p class="scope-label">FHIR Resources Retrieved</p><div class="fhir-grid">${counts.map(([k,label,icon])=>`<div class="fhir-cell"><span class="fhir-icon">${icon}</span><span class="fhir-count">${state.fhirData[k]?.entry?.length??0}</span><span class="fhir-label">${label}</span></div>`).join('')}</div></div>`;
+  }
+
+  function render(){
+    const badge=document.getElementById('epicStatusBadge');
+    const map={idle:['Not Connected','var(--muted)'],authorizing:['Authorizing…','var(--accent3)'],exchanging:['Connecting…','var(--accent3)'],authenticated:['Connected','var(--accent)'],error:['Error','var(--danger)']};
+    const[label,color]=map[state.status]||map.idle;
+    badge.textContent=label;badge.style.color=color;badge.style.borderColor=color;
+
+    const body=document.getElementById('epicBody');
+    if(state.status==='idle'){
+      body.innerHTML=`
+        <p class="epic-desc">Connect to the Epic sandbox to pull live FHIR R4 patient data into the CDI dashboard. Uses PKCE OAuth2 — no client secret required.</p>
+        ${EPIC_CONFIG.CLIENT_ID==='YOUR_CLIENT_ID_HERE'?`<div class="config-notice">⚠ <code>CLIENT_ID</code> not yet configured. Register your app at <a href="https://fhir.epic.com" target="_blank" style="color:var(--accent3)">fhir.epic.com</a> and drop the Client ID into <code>EPIC_CONFIG</code> in the dashboard source.</div>`:''}
+        <p class="scope-label">Requesting access to:</p>
+        <div class="scope-grid">${scopeGridHtml()}</div>
+        <button class="epic-btn" id="epicConnectBtn">Connect to Epic Sandbox →</button>
+        <p class="epic-hint">Need credentials? <a href="https://fhir.epic.com" target="_blank">Register at fhir.epic.com</a></p>`;
+      document.getElementById('epicConnectBtn').addEventListener('click',connect);
+    }else if(state.status==='authorizing'){
+      body.innerHTML=`<div style="text-align:center;"><p class="epic-desc">Redirecting to Epic login…</p></div>`;
+    }else if(state.status==='exchanging'){
+      body.innerHTML=`<div style="text-align:center;"><p class="epic-desc">Exchanging authorization code for access token…</p></div>`;
+    }else if(state.status==='authenticated'){
+      body.innerHTML=`
+        <div class="epic-success">✓ Connected to Epic Sandbox</div>
+        ${patientCardHtml()}
+        <div class="token-box">
+          <span class="token-label">Access Token</span>
+          <code class="token-val">${(state.tokens?.access_token||'').slice(0,32)}…</code>
+          ${state.tokens?.expires_in?`<span class="token-exp">Expires in ~${Math.round(state.tokens.expires_in/60)} min</span>`:''}
+        </div>
+        <button class="epic-btn" id="epicPullBtn" ${state.loadingResources?'disabled':''}>${state.loadingResources?'Fetching FHIR Resources…':'Pull CDI Data (FHIR R4) →'}</button>
+        ${fhirSummaryHtml()}
+        <button class="epic-btn-secondary" id="epicLogoutBtn">Disconnect</button>`;
+      document.getElementById('epicPullBtn').addEventListener('click',fetchCDIResources);
+      document.getElementById('epicLogoutBtn').addEventListener('click',logout);
+    }else if(state.status==='error'){
+      body.innerHTML=`<div class="epic-error">${state.error}</div><button class="epic-btn" id="epicRetryBtn">Try Again</button>`;
+      document.getElementById('epicRetryBtn').addEventListener('click',()=>{state.status='idle';state.error=null;render();});
+    }
+  }
+
+  return{init,render};
+})();
+
+// ══════════════════════════════════════════════════════════════════════════════
+// ── AMBIENT CDI PIPELINE MODULE ──────────────────────────────────────────────
+// ══════════════════════════════════════════════════════════════════════════════
+const ONCOLOGY_SYSTEM_PROMPT=`You are an expert Clinical Documentation Improvement (CDI) specialist
+with deep oncology expertise. Your role is to analyze ambient clinical speech transcriptions and
+generate precise, AHIMA-compliant CDI queries.
+
+When given a clinical transcription:
+1. Identify documentation gaps that may affect MS-DRG assignment, severity of illness, or risk of mortality
+2. Flag oncology-specific issues: staging discrepancies, treatment response ambiguity, histology specificity,
+   tumor site precision, chemotherapy toxicity grading, and performance status documentation
+3. Generate a structured CDI query using this exact JSON format:
+
+{
+  "queryId": "ONC-XXX",
+  "queryType": "one of: Staging, Histology, Treatment Response, Toxicity, Performance Status, Complication, Principal Diagnosis, Secondary Diagnosis",
+  "priority": "STAT | Routine | Informational",
+  "clinicalIndicators": ["list of specific findings from the note that triggered this query"],
+  "proposedOptions": ["Option A: ...", "Option B: ...", "Option C: Unable to determine"],
+  "icd10Suggestions": [{"code": "C34.11", "description": "Malignant neoplasm of upper lobe, right bronchus"}],
+  "msDRGImpact": "Describe expected MS-DRG shift or revenue impact",
+  "queryText": "Full AHIMA-compliant query text addressed to the attending physician",
+  "transcriptionExcerpt": "The specific phrase from the transcription that triggered this query"
+}
+
+If multiple query opportunities exist, return an array of query objects.
+Respond ONLY with valid JSON. No preamble, no explanation outside the JSON.`;
+
+const AmbientCDI=(function(){
+  let state={status:'idle',transcript:'',interim:'',queries:[],selectedQuery:null,error:null,audioLevel:0,duration:0};
+  let recognition=null,audioCtx=null,analyser=null,animFrame=null,timer=null,stream=null,finalTranscript='';
+
+  const SpeechRecognition=window.SpeechRecognition||window.webkitSpeechRecognition;
+  const isSupported=!!SpeechRecognition;
+
+  async function startVisualization(){
+    try{
+      stream=await navigator.mediaDevices.getUserMedia({audio:true});
+      audioCtx=new(window.AudioContext||window.webkitAudioContext)();
+      analyser=audioCtx.createAnalyser();analyser.fftSize=256;
+      audioCtx.createMediaStreamSource(stream).connect(analyser);
+      const tick=()=>{
+        const data=new Uint8Array(analyser.frequencyBinCount);
+        analyser.getByteFrequencyData(data);
+        state.audioLevel=Math.min(100,(data.reduce((a,b)=>a+b,0)/data.length)*2);
+        renderWaveform();
+        animFrame=requestAnimationFrame(tick);
+      };
+      tick();
+    }catch(e){console.warn('Audio visualization unavailable:',e);}
+  }
+  function stopVisualization(){
+    if(animFrame)cancelAnimationFrame(animFrame);
+    if(audioCtx)audioCtx.close();
+    if(stream)stream.getTracks().forEach(t=>t.stop());
+    state.audioLevel=0;
+  }
+
+  async function startListening(){
+    if(!isSupported){state.error='Web Speech API not supported. Use Chrome or Edge for ambient capture.';state.status='error';render();return;}
+    state.error=null;state.transcript='';state.interim='';state.queries=[];state.duration=0;state.status='listening';
+    finalTranscript='';
+    render();
+    await startVisualization();
+    timer=setInterval(()=>{state.duration++;updateTimer();},1000);
+
+    recognition=new SpeechRecognition();
+    recognition.continuous=true;recognition.interimResults=true;recognition.maxAlternatives=1;recognition.lang='en-US';
+    recognition.onresult=(event)=>{
+      let interim='';
+      for(let i=event.resultIndex;i<event.results.length;i++){
+        const result=event.results[i];
+        if(result.isFinal)finalTranscript+=result[0].transcript+' ';
+        else interim+=result[0].transcript;
+      }
+      state.transcript=finalTranscript;state.interim=interim;
+      updateTranscriptBox();
+    };
+    recognition.onerror=(event)=>{
+      if(event.error!=='no-speech'){state.error='Speech recognition error: '+event.error;state.status='error';cleanup();render();}
+    };
+    recognition.onend=()=>{if(state.status==='listening'){try{recognition.start();}catch(e){}}};
+    recognition.start();
+  }
+
+  function cleanup(){
+    if(recognition){recognition.stop();recognition=null;}
+    stopVisualization();
+    clearInterval(timer);
+  }
+
+  async function stopAndAnalyze(){
+    const text=state.transcript+state.interim;
+    cleanup();
+    state.status='transcribing';render();
+    if(!text.trim()||text.trim().length<20){state.error='Transcription too short. Please speak for at least a few seconds.';state.status='error';render();return;}
+    state.transcript=text;state.interim='';
+    await new Promise(r=>setTimeout(r,600));
+    await generateQueries(text);
+  }
+
+  async function generateQueries(transcriptionText){
+    state.status='generating';render();
+    try{
+      const response=await fetch('https://api.anthropic.com/v1/messages',{
+        method:'POST',headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({model:'claude-sonnet-4-6',max_tokens:1000,system:ONCOLOGY_SYSTEM_PROMPT,messages:[{role:'user',content:'Analyze this clinical transcription and generate CDI queries:\\n\\n'+transcriptionText}]})
+      });
+      if(!response.ok){const e=await response.json().catch(()=>({}));throw new Error(e.error?.message||('API error '+response.status));}
+      const data=await response.json();
+      const rawText=data.content?.[0]?.text||'';
+      const clean=rawText.replace(/```json\n?|```/g,'').trim();
+      const parsed=JSON.parse(clean);
+      state.queries=Array.isArray(parsed)?parsed:[parsed];
+      state.selectedQuery=state.queries[0]||null;
+      state.status='complete';
+      pushToFeed(state.queries);
+      render();
+    }catch(err){state.error='CDI generation failed: '+err.message;state.status='error';render();}
+  }
+
+  function pushToFeed(queries){
+    const feedEl=document.getElementById('ambientFeed');
+    const items=queries.map(q=>`<div class="feed-item"><span class="feed-id">${q.queryId||'—'}</span><div class="feed-body"><div class="feed-type">${q.queryType||''} · ${q.priority||''}</div><div class="feed-text">${q.queryText||''}</div>${q.msDRGImpact?`<div class="feed-drg">💰 ${q.msDRGImpact}</div>`:''}</div></div>`).join('');
+    if(feedEl.dataset.empty!=='false'){feedEl.innerHTML='';feedEl.dataset.empty='false';}
+    feedEl.insertAdjacentHTML('afterbegin',items);
+  }
+
+  function reset(){
+    cleanup();
+    state={status:'idle',transcript:'',interim:'',queries:[],selectedQuery:null,error:null,audioLevel:0,duration:0};
+    render();
+  }
+
+  function fmtDuration(s){return Math.floor(s/60)+':'+String(s%60).padStart(2,'0');}
+
+  function renderStages(){
+    const order=['idle','listening','transcribing','generating','complete'];
+    const stages=[['listening','Capture'],['transcribing','Transcribe'],['generating','AI Analysis'],['complete','CDI Query']];
+    const curIdx=order.indexOf(state.status==='error'?'idle':state.status);
+    const el=document.getElementById('pipelineStages');
+    el.innerHTML=stages.map(([key,label],i)=>{
+      const idx=order.indexOf(key),done=curIdx>idx,active=curIdx===idx;
+      const dotClass=done?'done':active?'active':'idle';
+      const connClass=done?'done':'';
+      return`<div class="stage-item"><div class="stage-dot ${dotClass}">${done?'✓':i+1}</div><span class="stage-lbl ${active?'active':done?'done':''}">${label}</span>${i<stages.length-1?`<div class="stage-conn ${connClass}"></div>`:''}</div>`;
+    }).join('');
+  }
+
+  function renderWaveform(){
+    const wf=document.getElementById('ambientWaveform');
+    if(!wf)return;
+    const bars=16;
+    wf.innerHTML=Array.from({length:bars},(_,i)=>{
+      const h=Math.max(4,Math.min(48,Math.random()*state.audioLevel*0.6+(i%2===0?state.audioLevel*0.4:state.audioLevel*0.2)));
+      return`<div class="wave-bar" style="height:${h}px;opacity:${state.audioLevel>5?1:0.3}"></div>`;
+    }).join('');
+  }
+  function updateTimer(){const t=document.getElementById('ambientTimer');if(t)t.textContent=fmtDuration(state.duration);}
+  function updateTranscriptBox(){
+    const tb=document.getElementById('ambientTranscriptText');
+    if(tb)tb.innerHTML=state.transcript+`<span class="interim-text">${state.interim}</span>`;
+  }
+
+  function queryCardHtml(q){
+    if(!q)return'';
+    const priorityClass='priority-'+(q.priority||'Routine');
+    return`<div class="query-card">
+      <div class="query-card-header"><span class="query-id-tag">${q.queryId||''}</span><span class="query-type-tag">${q.queryType||''}</span><span class="${priorityClass} priority-stat">${q.priority||''}</span></div>
+      ${q.clinicalIndicators?.length?`<div class="qsec"><div class="qsec-label">Clinical Indicators</div>${q.clinicalIndicators.map(ci=>`<div class="q-indicator">▸ ${ci}</div>`).join('')}</div>`:''}
+      ${q.queryText?`<div class="qsec"><div class="qsec-label">Query Text</div><div class="q-text">${q.queryText}</div></div>`:''}
+      ${q.proposedOptions?.length?`<div class="qsec"><div class="qsec-label">Proposed Options</div>${q.proposedOptions.map(o=>`<div class="q-option">${o}</div>`).join('')}</div>`:''}
+      ${q.icd10Suggestions?.length?`<div class="qsec"><div class="qsec-label">ICD-10-CM Suggestions</div>${q.icd10Suggestions.map(icd=>`<div class="icd-chip"><span class="icd-code">${icd.code}</span><span class="icd-desc">${icd.description}</span></div>`).join('')}</div>`:''}
+      ${q.msDRGImpact?`<div class="drg-impact-row"><span>💰</span><span class="drg-impact-text">${q.msDRGImpact}</span></div>`:''}
+      ${q.transcriptionExcerpt?`<div class="q-excerpt">Triggered by: "${q.transcriptionExcerpt}"</div>`:''}
+    </div>`;
+  }
+
+  function render(){
+    const badge=document.getElementById('ambientStatusBadge');
+    const map={idle:['Ready','var(--muted)'],listening:['● Recording','var(--danger)'],transcribing:['Processing','var(--accent3)'],generating:['AI Analyzing','#a78bfa'],complete:['Queries Ready','var(--accent)'],error:['Error','var(--danger)']};
+    const[label,color]=map[state.status]||map.idle;
+    badge.textContent=label;badge.style.color=color;badge.style.borderColor=color;
+    renderStages();
+
+    const body=document.getElementById('ambientBody');
+    if(state.status==='idle'){
+      body.innerHTML=`
+        <div class="idle-pane">
+          <div class="mic-hero">🎙️</div>
+          <p class="idle-desc">Record ambient clinical speech — physician dictation, bedside assessment, or tumor board discussion. Claude will analyze the transcription and generate oncology-specific CDI queries in real time.</p>
+          ${!isSupported?'<div class="warn-banner">⚠ Web Speech API requires Chrome or Edge. Safari not supported.</div>':''}
+          <button class="record-btn" id="ambientStartBtn" ${!isSupported?'disabled':''}>Start Recording</button>
+        </div>`;
+      document.getElementById('ambientStartBtn').addEventListener('click',startListening);
+    }else if(state.status==='listening'){
+      body.innerHTML=`
+        <div class="waveform" id="ambientWaveform"></div>
+        <div class="rec-timer" id="ambientTimer">0:00</div>
+        <div class="transcript-box"><span class="scope-label">Live Transcript</span><p class="transcript-text" id="ambientTranscriptText"></p></div>
+        <button class="stop-btn" id="ambientStopBtn">Stop & Analyze →</button>`;
+      document.getElementById('ambientStopBtn').addEventListener('click',stopAndAnalyze);
+      renderWaveform();updateTimer();updateTranscriptBox();
+    }else if(state.status==='transcribing'||state.status==='generating'){
+      const steps=[['Finalizing transcription',state.status==='generating'],['Sending to Claude for CDI analysis',false],['Generating AHIMA-compliant queries',false]];
+      body.innerHTML=`
+        <div class="processing-steps">${steps.map(([label,done],i)=>`<div class="proc-step"><div class="proc-dot ${done?'done':i===0?'active':'idle'}">${done?'✓':'●'}</div><span class="proc-label ${done?'done':i===0?'active':''}">${label}</span></div>`).join('')}</div>
+        <div class="transcript-box"><span class="scope-label">Transcription</span><p class="transcript-text">${state.transcript}</p></div>`;
+    }else if(state.status==='complete'){
+      const tabsHtml=state.queries.length>1?`<div class="query-tabs">${state.queries.map((q,i)=>`<button class="qtab ${q===state.selectedQuery?'active':''}" data-idx="${i}">${q.queryId}</button>`).join('')}</div>`:'';
+      body.innerHTML=`
+        ${tabsHtml}
+        ${queryCardHtml(state.selectedQuery)}
+        <div class="ambient-actions">
+          <button class="ambient-primary-btn" id="ambientSendBtn">Queries Sent to Dashboard ✓</button>
+          <button class="ambient-secondary-btn" id="ambientResetBtn">New Recording</button>
+        </div>
+        <details class="raw-transcript"><summary>View transcription</summary><p>${state.transcript}</p></details>`;
+      document.querySelectorAll('.qtab').forEach(tab=>tab.addEventListener('click',()=>{state.selectedQuery=state.queries[parseInt(tab.dataset.idx)];render();}));
+      document.getElementById('ambientResetBtn').addEventListener('click',reset);
+      const sendBtn=document.getElementById('ambientSendBtn');sendBtn.disabled=true;sendBtn.style.opacity='0.7';
+    }else if(state.status==='error'){
+      body.innerHTML=`<div class="ambient-error">${state.error}</div><button class="record-btn" id="ambientRetryBtn">Try Again</button>`;
+      document.getElementById('ambientRetryBtn').addEventListener('click',reset);
+    }
+  }
+
+  return{init:render};
+})();
+
 // ── INIT ───────────────────────────────────────────────────────────────────────
 loadDashboard(false);
 setInterval(()=>loadDashboard(true),60000);
+EpicAuth.init();
+AmbientCDI.init();
 </script>
 </body>
 </html>

@@ -1,0 +1,10 @@
+# Oncology AI Fleet — Netlify Redirects
+# www → apex domain (canonical)
+https://www.oncologyaifleet.com/*  https://oncologyaifleet.com/:splat  301!
+
+# HTTP → HTTPS
+http://oncologyaifleet.com/*       https://oncologyaifleet.com/:splat  301!
+http://www.oncologyaifleet.com/*   https://oncologyaifleet.com/:splat  301!
+
+# Demo subdomain passthrough (already on Netlify)
+# https://demo.oncologyaifleet.com is handled separately as a domain alias
