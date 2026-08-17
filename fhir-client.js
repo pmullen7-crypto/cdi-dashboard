@@ -49,13 +49,15 @@ const DIAGNOSES_ICD10 = [
   { code: 'I50.9',  display: 'Heart failure, unspecified' },
 ];
 
-const QUERY_TYPES = ['CC/MCC', 'DRG', 'HAC', 'PSI', 'Mortality'];
+const QUERY_TYPES = ['CC/MCC', 'DRG', 'HAC', 'PSI', 'Mortality', 'Screening'];
 const QUERY_TRIGGERS = {
   'CC/MCC':    ['Sepsis indicator', 'AKI staging', 'Malnutrition', 'Respiratory failure', 'Encephalopathy'],
   'DRG':       ['Lymphoma staging', 'NSCLC histology', 'Bilateral vs unilateral', 'Principal dx clarification'],
   'HAC':       ['CLABSI risk flag', 'CAUTI prevention', 'Fall w injury', 'DVT post-op', 'SSI screening'],
   'PSI':       ['PE post-op', 'Accidental puncture', 'Iatrogenic pneumothorax', 'Transfusion reaction'],
   'Mortality': ['NSCLC POA', 'Septic shock POA', 'CVA POA', 'Cancer POA status'],
+  // ONC-017: Preventive Screening Documentation Gap
+  'Screening': ['Mammography screening gap', 'Colonoscopy screening gap', 'LDCT lung screening gap', 'BRCA1/2 follow-up undocumented', 'Family hx screening status undocumented'],
 };
 const STATUSES = ['Pending', 'Responded', 'Overdue', 'Escalated'];
 
@@ -256,7 +258,7 @@ class FHIRClient {
   /** Derived: Revenue impact summary */
   async getRevenueImpact() {
     await new Promise(r => setTimeout(r, 180));
-    let ccmcc = 0, drg = 0, hac = 0;
+    let ccmcc = 0, drg = 0, hac = 0, screening = 0;
     this.queries.forEach(q => {
       const impact = q.extension.find(e => e.url.includes('drg-revenue-impact'))?.valueDecimal || 0;
       const type   = q.extension.find(e => e.url.includes('query-status-label'))?.valueString;
@@ -265,9 +267,34 @@ class FHIRClient {
         if (qtype === 'CC/MCC') ccmcc += impact;
         else if (qtype === 'DRG') drg += impact;
         else if (qtype === 'HAC') hac += Math.abs(impact);
+        else if (qtype === 'Screening') screening += impact;
       }
     });
-    return { ccmcc, drg, hac, total: ccmcc + drg + hac };
+    return { ccmcc, drg, hac, screening, total: ccmcc + drg + hac + screening };
+  }
+
+  /** Derived: ONC-017 preventive screening compliance summary */
+  async getScreeningCompliance() {
+    await new Promise(r => setTimeout(r, 160));
+    const screeningQueries = this.queries.filter(q => q.code.coding[0].code === 'Screening');
+    const total = screeningQueries.length || 1;
+    const closed = screeningQueries.filter(q =>
+      q.extension.find(e => e.url.includes('query-status-label'))?.valueString === 'Responded'
+    ).length;
+    const openGaps = screeningQueries.filter(q => {
+      const s = q.extension.find(e => e.url.includes('query-status-label'))?.valueString;
+      return s === 'Pending' || s === 'Overdue' || s === 'Escalated';
+    });
+    return {
+      complianceRate: Math.round((closed / total) * 100),
+      totalFlagged: screeningQueries.length,
+      openGaps: openGaps.length,
+      topGaps: openGaps.slice(0, 3).map(q => ({
+        id: q.id,
+        trigger: q._trigger,
+        provider: q.owner.display,
+      })),
+    };
   }
 
   /** Derived: KPI summary */

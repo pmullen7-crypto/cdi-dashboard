@@ -82,6 +82,15 @@ rel="stylesheet"
   .pill-HAC{background:rgba(239,68,68,.12);color:var(--danger)}
   .pill-PSI{background:rgba(168,85,247,.12);color:#a855f7}
   .pill-Mortality{background:rgba(245,158,11,.12);color:var(--accent3)}
+  .pill-Screening{background:rgba(236,72,153,.12);color:#ec4899}
+  .screening-summary{text-align:center;min-width:140px}
+  .screening-rate{font-family:'Syne',sans-serif;font-weight:800;font-size:34px;color:#ec4899;line-height:1}
+  .screening-rate-label{font-size:11px;color:var(--muted);margin-top:6px;max-width:140px}
+  .screening-meta{font-family:'DM Mono',monospace;font-size:11px;color:var(--muted);margin-bottom:10px}
+  .screening-gap-item{display:flex;align-items:center;justify-content:space-between;padding:6px 0;border-top:1px solid var(--subtle);font-size:12px}
+  .screening-gap-item:first-child{border-top:none}
+  .screening-gap-trigger{color:var(--text)}
+  .screening-gap-provider{color:var(--muted);font-size:11px}
   .bar-chart { display:flex; flex-direction:column; gap:12px; }
   .bar-row { display:flex; align-items:center; gap:10px; }
   .bar-label { font-size:12px; color:var(--muted); width:120px; flex-shrink:0; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
@@ -318,6 +327,23 @@ rel="stylesheet"
         </div>
       </div>
       <div class="panel section-gap">
+        <div class="panel-header"><span class="panel-title">Preventive Screening Compliance</span><span class="fhir-tag">ONC-017</span></div>
+        <div class="panel-body" style="padding:18px 20px;display:flex;gap:28px;align-items:center;flex-wrap:wrap;">
+          <div class="screening-summary">
+            <div class="screening-rate" id="screening-rate">—</div>
+            <div class="screening-rate-label">Documentation compliance rate</div>
+          </div>
+          <div style="flex:1;min-width:220px;">
+            <div class="screening-meta">
+              <span id="screening-flagged">— flagged</span>
+              <span class="sync-sep">|</span>
+              <span id="screening-open">— open gaps</span>
+            </div>
+            <div class="screening-gaps" id="screening-gaps"></div>
+          </div>
+        </div>
+      </div>
+      <div class="panel section-gap">
         <div class="panel-header"><span class="panel-title">Top DRG Impact Matrix — Oncology</span><span class="badge badge-amber">MS-DRG v41</span></div>
         <div class="panel-body"><div class="drg-grid" id="drg-grid"></div></div>
       </div>
@@ -381,8 +407,8 @@ rel="stylesheet"
     {code:'840',label:'Lymphoma w MCC',impact:6900},{code:'597',label:'Skin graft malig',impact:5100},
     {code:'435',label:'Malignant fever',impact:4300},{code:'791',label:'Prematurity w MCC',impact:3800},
   ];
-  const QUERY_TYPES = ['CC/MCC','DRG','HAC','PSI','Mortality'];
-  const TRIGGERS = {'CC/MCC':['Sepsis indicator','AKI staging','Malnutrition','Respiratory failure'],'DRG':['Lymphoma staging','NSCLC histology','Bilateral vs unilateral','Principal dx clarification'],'HAC':['CLABSI risk flag','CAUTI prevention','DVT post-op','SSI screening'],'PSI':['PE post-op','Accidental puncture','Iatrogenic pneumothorax'],'Mortality':['NSCLC POA','Septic shock POA','CVA POA']};
+  const QUERY_TYPES = ['CC/MCC','DRG','HAC','PSI','Mortality','Screening'];
+  const TRIGGERS = {'CC/MCC':['Sepsis indicator','AKI staging','Malnutrition','Respiratory failure'],'DRG':['Lymphoma staging','NSCLC histology','Bilateral vs unilateral','Principal dx clarification'],'HAC':['CLABSI risk flag','CAUTI prevention','DVT post-op','SSI screening'],'PSI':['PE post-op','Accidental puncture','Iatrogenic pneumothorax'],'Mortality':['NSCLC POA','Septic shock POA','CVA POA'],'Screening':['Mammography screening gap','Colonoscopy screening gap','LDCT lung screening gap','BRCA1/2 follow-up undocumented','Family hx screening status undocumented']};
   const STATUSES = ['Pending','Responded','Overdue','Escalated'];
   function rnd(a){return a[Math.floor(Math.random()*a.length)];}
   function ri(min,max){return Math.floor(Math.random()*(max-min+1))+min;}
@@ -391,7 +417,7 @@ rel="stylesheet"
 
   function makeQueries(){
     return Array.from({length:20},(_,i)=>{
-      const qtype=rnd(QUERY_TYPES),status=rnd(STATUSES),impact=qtype==='HAC'?-ri(2000,8000):ri(3000,18000),trigger=rnd(TRIGGERS[qtype]),provider=PROVIDERS[i%PROVIDERS.length];
+      const qtype=rnd(QUERY_TYPES),status=rnd(STATUSES),impact=qtype==='HAC'?-ri(2000,8000):qtype==='Screening'?ri(1800,6000):ri(3000,18000),trigger=rnd(TRIGGERS[qtype]),provider=PROVIDERS[i%PROVIDERS.length];
       return {resourceType:'Task',id:`QRY-${4800+i+1}`,status:status==='Responded'?'completed':status==='Overdue'?'failed':'in-progress',code:{coding:[{code:qtype}]},owner:{display:provider.name},_provider:provider,_status:status,_impact:impact,_trigger:trigger};
     });
   }
@@ -416,14 +442,28 @@ rel="stylesheet"
     async getProviderMetrics(){await delay(200);return makeProviderMetrics(this._queries);}
     async getRevenueImpact(){
       await delay(180);
-      let ccmcc=0,drg=0,hac=0;
-      this._queries.forEach(q=>{if(q._status==='Responded'){if(q.code.coding[0].code==='CC/MCC')ccmcc+=q._impact;else if(q.code.coding[0].code==='DRG')drg+=q._impact;else if(q.code.coding[0].code==='HAC')hac+=Math.abs(q._impact);}});
-      return{ccmcc,drg,hac,total:ccmcc+drg+hac};
+      let ccmcc=0,drg=0,hac=0,screening=0;
+      this._queries.forEach(q=>{if(q._status==='Responded'){if(q.code.coding[0].code==='CC/MCC')ccmcc+=q._impact;else if(q.code.coding[0].code==='DRG')drg+=q._impact;else if(q.code.coding[0].code==='HAC')hac+=Math.abs(q._impact);else if(q.code.coding[0].code==='Screening')screening+=q._impact;}});
+      return{ccmcc,drg,hac,screening,total:ccmcc+drg+hac+screening};
     }
     async getKPIs(){
       await delay(150);
       const total=this._queries.length,responded=this._queries.filter(q=>q._status==='Responded').length,overdue=this._queries.filter(q=>q._status==='Overdue').length,pending=this._queries.filter(q=>q._status==='Pending').length;
       return{totalQueries:total,responseRate:Math.round((responded/total)*100),avgResponseHrs:rf(16,22),pending,overdue};
+    }
+    // ONC-017: Preventive Screening Documentation Gap — compliance summary
+    async getScreeningCompliance(){
+      await delay(160);
+      const sq=this._queries.filter(q=>q.code.coding[0].code==='Screening');
+      const total=sq.length||1;
+      const closed=sq.filter(q=>q._status==='Responded').length;
+      const open=sq.filter(q=>q._status==='Pending'||q._status==='Overdue'||q._status==='Escalated');
+      return{
+        complianceRate:Math.round((closed/total)*100),
+        totalFlagged:sq.length,
+        openGaps:open.length,
+        topGaps:open.slice(0,3).map(q=>({id:q.id,trigger:q._trigger,provider:q.owner.display,status:q._status}))
+      };
     }
   }
   window.FHIRClient = new FHIRClient();
@@ -434,7 +474,7 @@ function updateClock(){document.getElementById('clock').textContent=new Date().t
 updateClock();setInterval(updateClock,1000);
 
 // ── HELPERS ────────────────────────────────────────────────────────────────────
-function pillClass(t){return({'CC/MCC':'pill-CCMCC','DRG':'pill-DRG','HAC':'pill-HAC','PSI':'pill-PSI','Mortality':'pill-Mortality'})[t]||'pill-DRG';}
+function pillClass(t){return({'CC/MCC':'pill-CCMCC','DRG':'pill-DRG','HAC':'pill-HAC','PSI':'pill-PSI','Mortality':'pill-Mortality','Screening':'pill-Screening'})[t]||'pill-DRG';}
 function statusBadge(s){return s==='Responded'?'<span class="badge badge-green">Responded</span>':s==='Overdue'?'<span class="badge badge-red">Overdue</span>':s==='Escalated'?'<span class="badge badge-red">Escalated</span>':'<span class="badge badge-warn">Pending</span>';}
 function barColor(p){return p>=85?'var(--accent)':p>=70?'var(--accent2)':p>=55?'var(--accent3)':p>=40?'var(--warn)':'var(--danger)';}
 
@@ -443,8 +483,8 @@ async function loadDashboard(refresh){
   const btn=document.getElementById('refreshBtn');
   btn.disabled=true;btn.innerHTML='<span class="spinning">⟳</span> Syncing…';
   if(refresh) window.FHIRClient.refresh();
-  const[kpis,queries,provMetrics,revenue,enc]=await Promise.all([
-    FHIRClient.getKPIs(),FHIRClient.getCDIQueries(),FHIRClient.getProviderMetrics(),FHIRClient.getRevenueImpact(),FHIRClient.getEncounters()
+  const[kpis,queries,provMetrics,revenue,enc,screening]=await Promise.all([
+    FHIRClient.getKPIs(),FHIRClient.getCDIQueries(),FHIRClient.getProviderMetrics(),FHIRClient.getRevenueImpact(),FHIRClient.getEncounters(),FHIRClient.getScreeningCompliance()
   ]);
   // Sync bar
   document.getElementById('sync-resources').textContent=(queries.total+enc.total)+' FHIR resources loaded';
@@ -477,14 +517,19 @@ async function loadDashboard(refresh){
   document.getElementById('provider-bars').innerHTML=provMetrics.map(m=>`<div class="bar-row"><div class="bar-label">${m.provider.name}</div><div class="bar-track"><div class="bar-fill" style="width:${m.responseRate}%;background:${barColor(m.responseRate)};"></div></div><div class="bar-val">${m.responseRate}%</div></div>`).join('');
   // Donut
   const typeCounts={};queries.entry.forEach(e=>{const t=e.resource.code.coding[0].code;typeCounts[t]=(typeCounts[t]||0)+1;});
-  const tot=queries.total||1,colors={'CC/MCC':'var(--accent)','DRG':'var(--accent2)','HAC':'var(--danger)','PSI':'#a855f7','Mortality':'var(--accent3)'},circ=2*Math.PI*30;
+  const tot=queries.total||1,colors={'CC/MCC':'var(--accent)','DRG':'var(--accent2)','HAC':'var(--danger)','PSI':'#a855f7','Mortality':'var(--accent3)','Screening':'#ec4899'},circ=2*Math.PI*30;
   let off=0;
   const segs=Object.entries(typeCounts).map(([type,count])=>{const pct=count/tot,dash=pct*circ,seg=`<circle cx="40" cy="40" r="30" fill="none" stroke="${colors[type]||'var(--subtle)'}" stroke-width="14" stroke-dasharray="${dash.toFixed(1)} ${(circ-dash).toFixed(1)}" stroke-dashoffset="${(-off).toFixed(1)}" transform="rotate(-90 40 40)"/>`;off+=dash;return{seg,type,pct:Math.round(pct*100)};});
   document.getElementById('donut-wrap').innerHTML=`<svg class="donut" viewBox="0 0 80 80"><circle cx="40" cy="40" r="30" fill="none" stroke="var(--surface2)" stroke-width="14"/>${segs.map(s=>s.seg).join('')}</svg><div class="donut-legend">${segs.map(s=>`<div class="legend-item"><span class="legend-dot" style="background:${colors[s.type]||'var(--subtle)'}"></span>${s.type}<span class="legend-val">${s.pct}%</span></div>`).join('')}</div>`;
   // Revenue
-  const revMax=Math.max(revenue.ccmcc,revenue.drg,revenue.hac)||1;
+  const revMax=Math.max(revenue.ccmcc,revenue.drg,revenue.hac,revenue.screening||0)||1;
   document.getElementById('revenue-total').textContent='+$'+(revenue.total/1000).toFixed(0)+'K';
-  document.getElementById('revenue-bars').innerHTML=`<div class="bar-row"><div class="bar-label">CC/MCC capture</div><div class="bar-track"><div class="bar-fill" style="width:${(revenue.ccmcc/revMax*100).toFixed(0)}%;background:var(--accent);"></div></div><div class="bar-val" style="width:56px;font-size:10px;">$${(revenue.ccmcc/1000).toFixed(0)}K</div></div><div class="bar-row"><div class="bar-label">DRG optimization</div><div class="bar-track"><div class="bar-fill" style="width:${(revenue.drg/revMax*100).toFixed(0)}%;background:var(--accent2);"></div></div><div class="bar-val" style="width:56px;font-size:10px;">$${(revenue.drg/1000).toFixed(0)}K</div></div><div class="bar-row"><div class="bar-label">HAC avoidance</div><div class="bar-track"><div class="bar-fill" style="width:${(revenue.hac/revMax*100).toFixed(0)}%;background:var(--accent3);"></div></div><div class="bar-val" style="width:56px;font-size:10px;">$${(revenue.hac/1000).toFixed(0)}K</div></div>`;
+  document.getElementById('revenue-bars').innerHTML=`<div class="bar-row"><div class="bar-label">CC/MCC capture</div><div class="bar-track"><div class="bar-fill" style="width:${(revenue.ccmcc/revMax*100).toFixed(0)}%;background:var(--accent);"></div></div><div class="bar-val" style="width:56px;font-size:10px;">$${(revenue.ccmcc/1000).toFixed(0)}K</div></div><div class="bar-row"><div class="bar-label">DRG optimization</div><div class="bar-track"><div class="bar-fill" style="width:${(revenue.drg/revMax*100).toFixed(0)}%;background:var(--accent2);"></div></div><div class="bar-val" style="width:56px;font-size:10px;">$${(revenue.drg/1000).toFixed(0)}K</div></div><div class="bar-row"><div class="bar-label">HAC avoidance</div><div class="bar-track"><div class="bar-fill" style="width:${(revenue.hac/revMax*100).toFixed(0)}%;background:var(--accent3);"></div></div><div class="bar-val" style="width:56px;font-size:10px;">$${(revenue.hac/1000).toFixed(0)}K</div></div><div class="bar-row"><div class="bar-label">Screening capture</div><div class="bar-track"><div class="bar-fill" style="width:${((revenue.screening||0)/revMax*100).toFixed(0)}%;background:#ec4899;"></div></div><div class="bar-val" style="width:56px;font-size:10px;">$${((revenue.screening||0)/1000).toFixed(0)}K</div></div>`;
+  // Screening compliance (ONC-017)
+  document.getElementById('screening-rate').textContent=screening.complianceRate+'%';
+  document.getElementById('screening-flagged').textContent=screening.totalFlagged+' flagged';
+  document.getElementById('screening-open').textContent=screening.openGaps+' open gap'+(screening.openGaps===1?'':'s');
+  document.getElementById('screening-gaps').innerHTML=screening.topGaps.length?screening.topGaps.map(g=>`<div class="screening-gap-item"><span class="screening-gap-trigger">${g.trigger}</span><span class="screening-gap-provider">${g.id} · ${g.provider}</span></div>`).join(''):'<div style="color:var(--muted);font-size:11px;">No open screening gaps this cycle</div>';
   // DRG matrix
   const drgData=[{code:'055',label:'CNS tumors w MCC',impact:18400,tier:'high'},{code:'180',label:'Resp neoplasm w MCC',impact:14200,tier:'high'},{code:'582',label:'Mastectomy w MCC',impact:12800,tier:'high'},{code:'374',label:'Digestive malig w CC',impact:9100,tier:'med'},{code:'470',label:'Joint replacement',impact:8700,tier:'med'},{code:'682',label:'Urinary malig w MCC',impact:7400,tier:'med'},{code:'840',label:'Lymphoma w MCC',impact:6900,tier:'med'},{code:'597',label:'Skin graft malig',impact:5100,tier:'low'},{code:'435',label:'Malignant fever',impact:4300,tier:'low'},{code:'791',label:'Prematurity w MCC',impact:3800,tier:'low'}];
   document.getElementById('drg-grid').innerHTML=drgData.map(d=>`<div class="drg-cell ${d.tier}"><div class="drg-code">DRG ${d.code}</div><div class="drg-impact">+$${(d.impact/1000).toFixed(1)}K</div><div class="drg-label">${d.label}</div></div>`).join('');
@@ -679,11 +724,16 @@ When given a clinical transcription:
 1. Identify documentation gaps that may affect MS-DRG assignment, severity of illness, or risk of mortality
 2. Flag oncology-specific issues: staging discrepancies, treatment response ambiguity, histology specificity,
    tumor site precision, chemotherapy toxicity grading, and performance status documentation
-3. Generate a structured CDI query using this exact JSON format:
+3. Also flag preventive screening documentation gaps (ONC-017): if the transcription references an
+   age/risk factor that makes the patient screening-eligible (e.g., family history, genetic marker,
+   prior finding) with no corresponding screening status, order, or declination documented, generate
+   an ONC-017 query rather than inferring or recommending a screening interval yourself — flag the
+   absence of documentation only, never a clinical recommendation
+4. Generate a structured CDI query using this exact JSON format:
 
 {
-  "queryId": "ONC-XXX",
-  "queryType": "one of: Staging, Histology, Treatment Response, Toxicity, Performance Status, Complication, Principal Diagnosis, Secondary Diagnosis",
+  "queryId": "ONC-XXX (use ONC-017 for preventive screening documentation gaps)",
+  "queryType": "one of: Staging, Histology, Treatment Response, Toxicity, Performance Status, Complication, Principal Diagnosis, Secondary Diagnosis, Preventive Screening Gap",
   "priority": "STAT | Routine | Informational",
   "clinicalIndicators": ["list of specific findings from the note that triggered this query"],
   "proposedOptions": ["Option A: ...", "Option B: ...", "Option C: Unable to determine"],
